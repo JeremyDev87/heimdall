@@ -1,0 +1,18 @@
+schema_version: '1.0'
+target:
+  id: missing-evidence
+  root: target
+policy:
+  id: harness-readiness
+  version: '1'
+  path: ../../policies/harness-readiness-v1.yaml
+isolation: trusted-local
+command:
+  argv:
+  - python3
+  - run.py
+  timeout_seconds: 10
+checks:
+- id: result
+  kind: file_exists
+  path: receipt.json
