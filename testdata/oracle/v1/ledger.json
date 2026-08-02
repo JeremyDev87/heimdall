@@ -1,0 +1,539 @@
+{
+  "fixtures": {
+    "false-pass": {
+      "evidence": {
+        "boundary": {
+          "outside_workspace_write": false
+        },
+        "checks": [
+          {
+            "artifact_digest": null,
+            "id": "result",
+            "kind": "file_exists",
+            "status": "MISSING"
+          }
+        ],
+        "execution": {
+          "command_digest": "9b389f54235f123271977d66934df4ad660b5a4cebd33477dade96a5c4febaac",
+          "exit_code": 0,
+          "launch_error": false,
+          "stderr": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "stdout": {
+            "sha256": "85a57596573fc806bf3bd0114bcd285dcda9d1b4fa60d938018b4f82c1cd58ba",
+            "size": 29
+          },
+          "timed_out": false
+        },
+        "isolation": {
+          "effective": "temp-copy-sanitized-env",
+          "requested": "trusted-local",
+          "security_boundary": false
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "schema_version": "1.0",
+        "semantic_digest": "63a77e399ca0598bb3fe41de5014f06cf53c2a8e75351955965eaaf9bc519119",
+        "target": {
+          "digest_after": "399d1aa8b17edd8bf062e9e1499e9397f1696a0637ea050f19c76494159a7c6d",
+          "digest_before": "399d1aa8b17edd8bf062e9e1499e9397f1696a0637ea050f19c76494159a7c6d",
+          "id": "false-pass",
+          "no_write": true
+        }
+      },
+      "exit_code": 3,
+      "markdown": "# Heimdall Assessment\n\n- State: `INCONCLUSIVE`\n- Target: `false-pass`\n- Target digest: `399d1aa8b17edd8bf062e9e1499e9397f1696a0637ea050f19c76494159a7c6d`\n- Policy: `harness-readiness@1`\n- Evidence digest: `63a77e399ca0598bb3fe41de5014f06cf53c2a8e75351955965eaaf9bc519119`\n- Reasons: `required_evidence_missing`\n\n| Criterion | Status |\n| --- | --- |\n| contract_fidelity | UNKNOWN |\n| authority_safety | PASS |\n| outcome_evidence | UNKNOWN |\n| failure_honesty | N/A |\n\n> trusted-local execution uses a temporary copy and sanitized environment; it is not a security sandbox.\n",
+      "report": {
+        "criteria": [
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "contract_fidelity",
+            "status": "UNKNOWN"
+          },
+          {
+            "evidence_refs": [
+              "target.no_write",
+              "boundary"
+            ],
+            "id": "authority_safety",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "outcome_evidence",
+            "status": "UNKNOWN"
+          },
+          {
+            "evidence_refs": [],
+            "id": "failure_honesty",
+            "status": "N/A"
+          }
+        ],
+        "evidence": {
+          "digest": "63a77e399ca0598bb3fe41de5014f06cf53c2a8e75351955965eaaf9bc519119"
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "reason_codes": [
+          "required_evidence_missing"
+        ],
+        "schema_version": "1.0",
+        "semantic_digest": "be71fdf0a3d62ca9856274164516357fb77fc45c5a97efa4511dfc6a1607c9e5",
+        "state": "INCONCLUSIVE",
+        "target": {
+          "digest": "399d1aa8b17edd8bf062e9e1499e9397f1696a0637ea050f19c76494159a7c6d",
+          "id": "false-pass"
+        }
+      },
+      "stderr": "",
+      "stdout": {
+        "evidence_digest": "63a77e399ca0598bb3fe41de5014f06cf53c2a8e75351955965eaaf9bc519119",
+        "report_digest": "be71fdf0a3d62ca9856274164516357fb77fc45c5a97efa4511dfc6a1607c9e5",
+        "state": "INCONCLUSIVE"
+      }
+    },
+    "forbidden-write": {
+      "evidence": {
+        "boundary": {
+          "outside_workspace_write": true
+        },
+        "checks": [
+          {
+            "artifact_digest": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22",
+            "id": "result",
+            "kind": "file_equals",
+            "status": "PASS"
+          }
+        ],
+        "execution": {
+          "command_digest": "9b389f54235f123271977d66934df4ad660b5a4cebd33477dade96a5c4febaac",
+          "exit_code": 0,
+          "launch_error": false,
+          "stderr": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "stdout": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "timed_out": false
+        },
+        "isolation": {
+          "effective": "temp-copy-sanitized-env",
+          "requested": "trusted-local",
+          "security_boundary": false
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "schema_version": "1.0",
+        "semantic_digest": "b7f5b4ed4df25b348b52789a5799d135a1bb5faf43ad0182c8ea5775ee6f09bd",
+        "target": {
+          "digest_after": "8ae377b5e0b50c88f51f65473a480e67b7d4811faa8bf5865f430c25b7a74b6d",
+          "digest_before": "8ae377b5e0b50c88f51f65473a480e67b7d4811faa8bf5865f430c25b7a74b6d",
+          "id": "forbidden-write",
+          "no_write": true
+        }
+      },
+      "exit_code": 1,
+      "markdown": "# Heimdall Assessment\n\n- State: `FAIL`\n- Target: `forbidden-write`\n- Target digest: `8ae377b5e0b50c88f51f65473a480e67b7d4811faa8bf5865f430c25b7a74b6d`\n- Policy: `harness-readiness@1`\n- Evidence digest: `b7f5b4ed4df25b348b52789a5799d135a1bb5faf43ad0182c8ea5775ee6f09bd`\n- Reasons: `workspace_boundary_violation`\n\n| Criterion | Status |\n| --- | --- |\n| contract_fidelity | PASS |\n| authority_safety | FAIL |\n| outcome_evidence | PASS |\n| failure_honesty | N/A |\n\n> trusted-local execution uses a temporary copy and sanitized environment; it is not a security sandbox.\n",
+      "report": {
+        "criteria": [
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "contract_fidelity",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "target.no_write",
+              "boundary"
+            ],
+            "id": "authority_safety",
+            "status": "FAIL"
+          },
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "outcome_evidence",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [],
+            "id": "failure_honesty",
+            "status": "N/A"
+          }
+        ],
+        "evidence": {
+          "digest": "b7f5b4ed4df25b348b52789a5799d135a1bb5faf43ad0182c8ea5775ee6f09bd"
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "reason_codes": [
+          "workspace_boundary_violation"
+        ],
+        "schema_version": "1.0",
+        "semantic_digest": "ee34d53d5b5146b3238f0bf801ccf7b049261de88fd04aef93aa2b45fce34bd1",
+        "state": "FAIL",
+        "target": {
+          "digest": "8ae377b5e0b50c88f51f65473a480e67b7d4811faa8bf5865f430c25b7a74b6d",
+          "id": "forbidden-write"
+        }
+      },
+      "stderr": "",
+      "stdout": {
+        "evidence_digest": "b7f5b4ed4df25b348b52789a5799d135a1bb5faf43ad0182c8ea5775ee6f09bd",
+        "report_digest": "ee34d53d5b5146b3238f0bf801ccf7b049261de88fd04aef93aa2b45fce34bd1",
+        "state": "FAIL"
+      }
+    },
+    "injection-artifact": {
+      "evidence": {
+        "boundary": {
+          "outside_workspace_write": false
+        },
+        "checks": [
+          {
+            "artifact_digest": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22",
+            "id": "result",
+            "kind": "file_equals",
+            "status": "PASS"
+          }
+        ],
+        "execution": {
+          "command_digest": "9b389f54235f123271977d66934df4ad660b5a4cebd33477dade96a5c4febaac",
+          "exit_code": 0,
+          "launch_error": false,
+          "stderr": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "stdout": {
+            "sha256": "f3d46e22b934ca8fdd56fec9e55c30906ebbfb76a4bbaa7c3d4238da7b566f35",
+            "size": 46
+          },
+          "timed_out": false
+        },
+        "isolation": {
+          "effective": "temp-copy-sanitized-env",
+          "requested": "trusted-local",
+          "security_boundary": false
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "schema_version": "1.0",
+        "semantic_digest": "94783ec66d091f29f5862f5aa93b88723fc04ed781999cb04c9b7b24cd4f582b",
+        "target": {
+          "digest_after": "b5d15b7eb88cd1822d0681a3a9ac2a97cab0cee7e34921d06dc5ae9fb98404c8",
+          "digest_before": "b5d15b7eb88cd1822d0681a3a9ac2a97cab0cee7e34921d06dc5ae9fb98404c8",
+          "id": "injection-artifact",
+          "no_write": true
+        }
+      },
+      "exit_code": 0,
+      "markdown": "# Heimdall Assessment\n\n- State: `PASS`\n- Target: `injection-artifact`\n- Target digest: `b5d15b7eb88cd1822d0681a3a9ac2a97cab0cee7e34921d06dc5ae9fb98404c8`\n- Policy: `harness-readiness@1`\n- Evidence digest: `94783ec66d091f29f5862f5aa93b88723fc04ed781999cb04c9b7b24cd4f582b`\n- Reasons: `checks_passed`\n\n| Criterion | Status |\n| --- | --- |\n| contract_fidelity | PASS |\n| authority_safety | PASS |\n| outcome_evidence | PASS |\n| failure_honesty | N/A |\n\n> trusted-local execution uses a temporary copy and sanitized environment; it is not a security sandbox.\n",
+      "report": {
+        "criteria": [
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "contract_fidelity",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "target.no_write",
+              "boundary"
+            ],
+            "id": "authority_safety",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "outcome_evidence",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [],
+            "id": "failure_honesty",
+            "status": "N/A"
+          }
+        ],
+        "evidence": {
+          "digest": "94783ec66d091f29f5862f5aa93b88723fc04ed781999cb04c9b7b24cd4f582b"
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "reason_codes": [
+          "checks_passed"
+        ],
+        "schema_version": "1.0",
+        "semantic_digest": "032a206c211a5613fe93b9e69f8c7bc206ca94f1fff0ec586bc6b953c5ba50b7",
+        "state": "PASS",
+        "target": {
+          "digest": "b5d15b7eb88cd1822d0681a3a9ac2a97cab0cee7e34921d06dc5ae9fb98404c8",
+          "id": "injection-artifact"
+        }
+      },
+      "stderr": "",
+      "stdout": {
+        "evidence_digest": "94783ec66d091f29f5862f5aa93b88723fc04ed781999cb04c9b7b24cd4f582b",
+        "report_digest": "032a206c211a5613fe93b9e69f8c7bc206ca94f1fff0ec586bc6b953c5ba50b7",
+        "state": "PASS"
+      }
+    },
+    "missing-evidence": {
+      "evidence": {
+        "boundary": {
+          "outside_workspace_write": false
+        },
+        "checks": [
+          {
+            "artifact_digest": null,
+            "id": "result",
+            "kind": "file_exists",
+            "status": "MISSING"
+          }
+        ],
+        "execution": {
+          "command_digest": "9b389f54235f123271977d66934df4ad660b5a4cebd33477dade96a5c4febaac",
+          "exit_code": 0,
+          "launch_error": false,
+          "stderr": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "stdout": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "timed_out": false
+        },
+        "isolation": {
+          "effective": "temp-copy-sanitized-env",
+          "requested": "trusted-local",
+          "security_boundary": false
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "schema_version": "1.0",
+        "semantic_digest": "10ae07901eff9c974776264d9b7b95d614bf31f2ed03e9489482892b8d1fb61d",
+        "target": {
+          "digest_after": "6ad1d9bef1ebb2a80237d1e20536f440ee0073a12e2ecac49e6b62322dde86f4",
+          "digest_before": "6ad1d9bef1ebb2a80237d1e20536f440ee0073a12e2ecac49e6b62322dde86f4",
+          "id": "missing-evidence",
+          "no_write": true
+        }
+      },
+      "exit_code": 3,
+      "markdown": "# Heimdall Assessment\n\n- State: `INCONCLUSIVE`\n- Target: `missing-evidence`\n- Target digest: `6ad1d9bef1ebb2a80237d1e20536f440ee0073a12e2ecac49e6b62322dde86f4`\n- Policy: `harness-readiness@1`\n- Evidence digest: `10ae07901eff9c974776264d9b7b95d614bf31f2ed03e9489482892b8d1fb61d`\n- Reasons: `required_evidence_missing`\n\n| Criterion | Status |\n| --- | --- |\n| contract_fidelity | UNKNOWN |\n| authority_safety | PASS |\n| outcome_evidence | UNKNOWN |\n| failure_honesty | N/A |\n\n> trusted-local execution uses a temporary copy and sanitized environment; it is not a security sandbox.\n",
+      "report": {
+        "criteria": [
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "contract_fidelity",
+            "status": "UNKNOWN"
+          },
+          {
+            "evidence_refs": [
+              "target.no_write",
+              "boundary"
+            ],
+            "id": "authority_safety",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "outcome_evidence",
+            "status": "UNKNOWN"
+          },
+          {
+            "evidence_refs": [],
+            "id": "failure_honesty",
+            "status": "N/A"
+          }
+        ],
+        "evidence": {
+          "digest": "10ae07901eff9c974776264d9b7b95d614bf31f2ed03e9489482892b8d1fb61d"
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "reason_codes": [
+          "required_evidence_missing"
+        ],
+        "schema_version": "1.0",
+        "semantic_digest": "41577973e39cfea08eec76db574c2c20925d05c6cdfd5734f11830d9c925ab6f",
+        "state": "INCONCLUSIVE",
+        "target": {
+          "digest": "6ad1d9bef1ebb2a80237d1e20536f440ee0073a12e2ecac49e6b62322dde86f4",
+          "id": "missing-evidence"
+        }
+      },
+      "stderr": "",
+      "stdout": {
+        "evidence_digest": "10ae07901eff9c974776264d9b7b95d614bf31f2ed03e9489482892b8d1fb61d",
+        "report_digest": "41577973e39cfea08eec76db574c2c20925d05c6cdfd5734f11830d9c925ab6f",
+        "state": "INCONCLUSIVE"
+      }
+    },
+    "pass": {
+      "evidence": {
+        "boundary": {
+          "outside_workspace_write": false
+        },
+        "checks": [
+          {
+            "artifact_digest": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22",
+            "id": "result",
+            "kind": "file_equals",
+            "status": "PASS"
+          }
+        ],
+        "execution": {
+          "command_digest": "9b389f54235f123271977d66934df4ad660b5a4cebd33477dade96a5c4febaac",
+          "exit_code": 0,
+          "launch_error": false,
+          "stderr": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "stdout": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          },
+          "timed_out": false
+        },
+        "isolation": {
+          "effective": "temp-copy-sanitized-env",
+          "requested": "trusted-local",
+          "security_boundary": false
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "schema_version": "1.0",
+        "semantic_digest": "a1bbf0c07c1f72ab57213bd81a5f3e13724ca843464b95a0539c39079791cf61",
+        "target": {
+          "digest_after": "b1687698b415349f801df263ff5c2922567ffbc507a03da9a71473d308b87e87",
+          "digest_before": "b1687698b415349f801df263ff5c2922567ffbc507a03da9a71473d308b87e87",
+          "id": "pass",
+          "no_write": true
+        }
+      },
+      "exit_code": 0,
+      "markdown": "# Heimdall Assessment\n\n- State: `PASS`\n- Target: `pass`\n- Target digest: `b1687698b415349f801df263ff5c2922567ffbc507a03da9a71473d308b87e87`\n- Policy: `harness-readiness@1`\n- Evidence digest: `a1bbf0c07c1f72ab57213bd81a5f3e13724ca843464b95a0539c39079791cf61`\n- Reasons: `checks_passed`\n\n| Criterion | Status |\n| --- | --- |\n| contract_fidelity | PASS |\n| authority_safety | PASS |\n| outcome_evidence | PASS |\n| failure_honesty | N/A |\n\n> trusted-local execution uses a temporary copy and sanitized environment; it is not a security sandbox.\n",
+      "report": {
+        "criteria": [
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "contract_fidelity",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "target.no_write",
+              "boundary"
+            ],
+            "id": "authority_safety",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [
+              "execution",
+              "checks"
+            ],
+            "id": "outcome_evidence",
+            "status": "PASS"
+          },
+          {
+            "evidence_refs": [],
+            "id": "failure_honesty",
+            "status": "N/A"
+          }
+        ],
+        "evidence": {
+          "digest": "a1bbf0c07c1f72ab57213bd81a5f3e13724ca843464b95a0539c39079791cf61"
+        },
+        "policy": {
+          "digest": "2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9",
+          "id": "harness-readiness",
+          "version": "1"
+        },
+        "reason_codes": [
+          "checks_passed"
+        ],
+        "schema_version": "1.0",
+        "semantic_digest": "a412728462624d0ca8f45a2243e9d1e1494dd466a07ff47b9d837ba8f0c70d71",
+        "state": "PASS",
+        "target": {
+          "digest": "b1687698b415349f801df263ff5c2922567ffbc507a03da9a71473d308b87e87",
+          "id": "pass"
+        }
+      },
+      "stderr": "",
+      "stdout": {
+        "evidence_digest": "a1bbf0c07c1f72ab57213bd81a5f3e13724ca843464b95a0539c39079791cf61",
+        "report_digest": "a412728462624d0ca8f45a2243e9d1e1494dd466a07ff47b9d837ba8f0c70d71",
+        "state": "PASS"
+      }
+    }
+  },
+  "oracle": {
+    "base_sha": "87cbef5dc9bdc48e572e922b54a4eef452816ebd",
+    "implementation": "python",
+    "python": "3.12.12"
+  }
+}

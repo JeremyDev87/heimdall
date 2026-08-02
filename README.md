@@ -4,7 +4,7 @@ Heimdall is an evidence-first, deterministic evaluator for trusted local agent h
 It freezes a target, executes a declared command in a disposable copy, verifies explicit
 artifacts, seals content-light evidence, and reduces hard gates to one of four states.
 
-> **Status:** MVP implementation. The bundled corpus is synthetic; no real agent harness has
+> **Status:** Go MVP implementation. The bundled corpus is synthetic; no real agent harness has
 > yet been selected as the first product target.
 
 ## Why Heimdall
@@ -30,12 +30,13 @@ numeric score, auto-fixer, dashboard, approval service, or universal adapter.
 
 ## Quick start
 
-Requirements: Python 3.11 or newer and [uv](https://docs.astral.sh/uv/).
+Requirements: Go 1.26 or newer. Heimdall itself has no Python or `uv` runtime dependency.
+A target command may independently require the interpreter declared in its manifest.
 
 ```bash
-uv sync
-uv run heimdall validate fixtures/pass/eval.yaml
-uv run heimdall evaluate fixtures/pass/eval.yaml --out /tmp/heimdall-pass
+go build -trimpath -o ./bin/heimdall ./cmd/heimdall
+./bin/heimdall validate fixtures/pass/eval.yaml
+./bin/heimdall evaluate fixtures/pass/eval.yaml --out /tmp/heimdall-pass
 ```
 
 A manifest declares a relative target root, a versioned policy, an argv-only command, a
@@ -88,50 +89,53 @@ Raw stdout, stderr, environment values, target content, credentials, and absolut
 are not copied into these reports. They are represented only by content digests and byte sizes.
 The semantic documents omit timestamps and temporary paths so repeat runs remain comparable.
 
-## Security boundary
+## Security and platform boundary
 
-`trusted-local` means the target is owner-controlled code. Heimdall currently uses a temporary
-copy, argv-only subprocess execution, a reduced environment, a timeout, and source no-write
-verification. **This is not an OS sandbox:** network access and arbitrary host writes are not
-prevented. Do not evaluate adversarial or third-party code with this runner. Such targets require
-a future container or host-enforced sandbox backend and must be treated as `BLOCKED` today.
+`trusted-local` means the target is owner-controlled code. On supported hosted runtimes,
+Heimdall uses a temporary copy, argv-only subprocess execution, a reduced environment, process-
+group timeout cleanup, and source no-write verification. **This is not an OS sandbox:** network
+access and arbitrary host writes are not prevented. Do not evaluate adversarial or third-party
+code with this runner. Such targets require a future container or host-enforced sandbox backend.
 
+The hosted runner is verified on macOS arm64. Linux amd64 has cross-build evidence and CI coverage,
+but remains runtime-unverified until hosted process and timeout evidence is collected.
 Hermes profiles are not used as a sandbox, and the bundled Skill is not installed automatically.
 Human or host control retains final acceptance and every external state transition.
 
-## Regression corpus
+## Regression and migration corpus
 
-The fixed corpus covers:
+The fixed corpus covers evidence-backed PASS, PASS-looking self-report with missing evidence,
+missing receipts, writes outside the disposable target, and injection-like text treated as data.
+Additional Go tests cover source mutation, non-zero exits, timeout descendant cleanup, schema
+closure, output containment, duplicate keys, symlink rejection, and credential redaction.
 
-- valid evidence-backed PASS;
-- PASS-looking self-report with missing evidence;
-- missing receipt;
-- a write outside the allowed disposable target directory;
-- evaluator-directed prompt-injection text treated only as data.
-
-Additional tests cover source mutation, non-zero exits, timeouts, copied-root stability,
-report-schema closure, output-path containment, duplicate keys, and credential redaction.
+`testdata/oracle/v1/ledger.json` records the canonical Python MVP results at Git revision
+`87cbef5dc9bdc48e572e922b54a4eef452816ebd`. Go tests compare every bundled fixture against that
+frozen oracle; the legacy Python product implementation is not required at test or runtime.
 
 ```bash
-uv run ruff check .
-uv run python -m compileall -q src tests
-uv run pytest -q
+test -z "$(gofmt -l .)"
+go vet ./...
+go test ./... -count=1
+go test -race ./... -count=1
+go build -trimpath -o /tmp/heimdall ./cmd/heimdall
 ```
 
 ## Repository layout
 
 ```text
-src/heimdall/        deterministic core and CLI
+cmd/heimdall/        CLI entrypoint
+internal/            contract, runner, reducer, report, and deterministic utilities
 schemas/             strict v1 input/evidence/report contracts
 policies/            versioned scoring policy artifacts
 fixtures/            fixed adversarial and benign corpus
-skill/heimdall/       distributable Hermes Skill; not profile-installed
-tests/               contract, reducer, mutation, privacy, and CLI tests
+testdata/oracle/     frozen cross-language parity receipts
+skill/heimdall/      distributable Hermes Skill; not profile-installed
 ```
 
 ## Deferred work
 
 A first real target must be selected and frozen before Heimdall can claim product-level utility.
 An optional evidence-only semantic reviewer may be considered only after deterministic gaps are
-measured against a human-reviewed corpus. Docker/container isolation, GitHub integration,
-publication, deployment, automatic approval, and numeric scoring are outside this MVP.
+measured against a human-reviewed corpus. Container isolation, GitHub integration, publication,
+deployment, automatic approval, and numeric scoring are outside this MVP.
