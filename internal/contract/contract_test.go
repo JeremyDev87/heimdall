@@ -7,13 +7,41 @@ import (
 	"testing"
 )
 
+func canonicalRepoRootFrom(cwd string) (string, error) {
+	root, err := filepath.Abs(filepath.Join(cwd, "..", ".."))
+	if err != nil {
+		return "", err
+	}
+	return filepath.EvalSymlinks(root)
+}
+
 func repoRoot(t *testing.T) string {
 	t.Helper()
-	root, err := filepath.Abs(filepath.Join("..", ".."))
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	root, err := canonicalRepoRootFrom(cwd)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return root
+}
+
+func TestRepoRootCanonicalizesSymlinkedParent(t *testing.T) {
+	physicalRoot := repoRoot(t)
+	alias := filepath.Join(t.TempDir(), "repo")
+	if err := os.Symlink(physicalRoot, alias); err != nil {
+		t.Fatal(err)
+	}
+
+	root, err := canonicalRepoRootFrom(filepath.Join(alias, "internal", "contract"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if root != physicalRoot {
+		t.Fatalf("repo root=%q want=%q", root, physicalRoot)
+	}
 }
 
 func TestLoadSpecStrictContract(t *testing.T) {
