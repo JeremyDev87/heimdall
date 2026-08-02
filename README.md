@@ -4,8 +4,9 @@ Heimdall is an evidence-first, deterministic evaluator for trusted local agent h
 It freezes a target, executes a declared command in a disposable copy, verifies explicit
 artifacts, seals content-light evidence, and reduces hard gates to one of four states.
 
-> **Status:** Go MVP implementation. The bundled corpus is synthetic; no real agent harness has
-> yet been selected as the first product target.
+> **Status:** Go MVP implementation. A `ddalggak` repository candidate has completed the first
+> local `trusted-local` pilot; publishing that adapter and running the real target on Linux remain
+> separate follow-up gates.
 
 ## Why Heimdall
 
@@ -97,10 +98,38 @@ group timeout cleanup, and source no-write verification. **This is not an OS san
 access and arbitrary host writes are not prevented. Do not evaluate adversarial or third-party
 code with this runner. Such targets require a future container or host-enforced sandbox backend.
 
-The hosted runner is verified on macOS arm64. Linux amd64 has cross-build evidence and CI coverage,
-but remains runtime-unverified until hosted process and timeout evidence is collected.
+The hosted runner is verified on GitHub-hosted macOS and Ubuntu. Merge commit
+`3186dc048332a885d6b887095f958a8d33086dca` completed format, vet, race-enabled process/timeout
+tests, and build on `ubuntu-latest` and `macos-latest` in
+[CI run 30736621364](https://github.com/JeremyDev87/heimdall/actions/runs/30736621364).
+The Linux cross-build jobs are separate artifact evidence; the `ddalggak` real-target pilot below
+was run on macOS only.
 Hermes profiles are not used as a sandbox, and the bundled Skill is not installed automatically.
 Human or host control retains final acceptance and every external state transition.
+
+## First trusted-local pilot
+
+The first real-target candidate used Heimdall merge commit
+`3186dc048332a885d6b887095f958a8d33086dca` against a local adapter based on `ddalggak` commit
+`62fada25900a598e655e84b6e953453caa086a4a`. The adapter invokes ddalggak's existing deterministic
+29-scenario readiness evaluator and writes `ok\n` only after that evaluator exits successfully.
+
+The target-local policy is byte-identical to `policies/harness-readiness-v1.yaml`, with SHA-256
+`2895584af90ffd13f9eebc84a3fe9334f78c4a9efcbcabff03976072eb7047f9`. Two clean positive
+evaluations produced the same evidence digest
+`d172d008de8152b7219c3f3b661219f1c3d265015936cc34ae5b069907cd1c98` and report digest
+`969e6a8e589bec08aee40ffdf0ee71b67677e37796026fb3092a702f8618c15b`, with target no-write
+evidence true. A fixture-tamper probe exited `1` and reduced to `FAIL` with `command_failed` and
+`required_evidence_missing`; it could not reuse or emit a stale pass artifact.
+
+This is local candidate evidence, not an upstream ddalggak commit, published package integration,
+or Linux real-target result. The evaluated target digest
+`5a2330e555ad4f42a4eb02cf51c4fe9ad90ab2f4fc90220c753d53a9223d1df2` binds the exact
+Heimdall-evaluated target snapshot: relative paths, file/directory kinds, and regular-file bytes.
+It excludes `.git`, `.venv`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`, and does not seal
+filesystem metadata such as mode or timestamps. It proves one bounded repository can use the
+existing contract; it does not prove universal target coverage or provide an adversarial-code
+sandbox.
 
 ## Regression and migration corpus
 
@@ -135,7 +164,8 @@ skill/heimdall/      distributable Hermes Skill; not profile-installed
 
 ## Deferred work
 
-A first real target must be selected and frozen before Heimdall can claim product-level utility.
-An optional evidence-only semantic reviewer may be considered only after deterministic gaps are
-measured against a human-reviewed corpus. Container isolation, GitHub integration, publication,
-deployment, automatic approval, and numeric scoring are outside this MVP.
+Promoting the local `ddalggak` adapter through independent review and rerunning its exact published
+revision on Linux are the next evidence gates. An optional evidence-only semantic reviewer may be
+considered only after deterministic gaps are measured against a human-reviewed corpus. Container
+isolation, GitHub integration, publication, deployment, automatic approval, and numeric scoring
+remain outside this MVP.
