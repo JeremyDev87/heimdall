@@ -6,5 +6,8 @@
 *.egg-info/
 /build/
 /dist/
+/bin/
+/heimdall
+/coverage.out
 /.heimdall/
 /reports/
