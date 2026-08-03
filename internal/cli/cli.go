@@ -157,15 +157,25 @@ func runEvaluation(manifest, out string, includeOutput bool, stdout io.Writer) (
 	if err != nil || !outputIdentity.IsDir() || outputIdentity.Mode()&os.ModeSymlink != 0 {
 		return blocked(stdout, "invalid_output"), false
 	}
+	outputRoot, err := os.OpenRoot(outPath)
+	if err != nil {
+		return blocked(stdout, "invalid_output"), false
+	}
+	defer outputRoot.Close()
+	rootIdentity, err := outputRoot.Stat(".")
+	if err != nil || !os.SameFile(outputIdentity, rootIdentity) {
+		return blocked(stdout, "invalid_output"), false
+	}
 	artifacts, err := evaluator.EvaluateSpec(spec)
 	if err != nil {
 		return blocked(stdout, errorCode(err)), false
 	}
 	currentOutput, err := os.Lstat(outPath)
-	if err != nil || !currentOutput.IsDir() || currentOutput.Mode()&os.ModeSymlink != 0 || !os.SameFile(outputIdentity, currentOutput) {
+	currentRoot, rootErr := outputRoot.Stat(".")
+	if err != nil || rootErr != nil || !currentOutput.IsDir() || currentOutput.Mode()&os.ModeSymlink != 0 || !os.SameFile(outputIdentity, currentOutput) || !os.SameFile(outputIdentity, currentRoot) {
 		return blocked(stdout, "invalid_output"), false
 	}
-	if err := report.WriteArtifacts(outPath, artifacts.Evidence, artifacts.Report, artifacts.Markdown); err != nil {
+	if err := report.WriteArtifactsRoot(outputRoot, artifacts.Evidence, artifacts.Report, artifacts.Markdown); err != nil {
 		return blocked(stdout, "evaluation_unavailable"), false
 	}
 	state := artifacts.Report["state"].(string)
