@@ -48,8 +48,17 @@ func WriteArtifacts(out string, evidence, assessment map[string]any, markdown st
 	return atomicWrite(filepath.Join(directory, "report.md"), []byte(markdown))
 }
 func atomicWrite(path string, content []byte) error {
-	temporary := filepath.Join(filepath.Dir(path), "."+filepath.Base(path)+".tmp")
-	if err := os.WriteFile(temporary, content, 0o600); err != nil {
+	handle, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return err
+	}
+	temporary := handle.Name()
+	defer os.Remove(temporary)
+	if _, err := handle.Write(content); err != nil {
+		_ = handle.Close()
+		return err
+	}
+	if err := handle.Close(); err != nil {
 		return err
 	}
 	return os.Rename(temporary, path)

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+marker='.heimdall/heimdall-ok'
+rm -f -- "$marker"
+{{ .Command }}
+printf 'ok\n' > "$marker"

@@ -1,0 +1,19 @@
+schema_version: "1.0"
+target:
+  id: "{{ .TargetID }}"
+  root: .
+policy:
+  id: harness-readiness
+  version: "1"
+  path: .heimdall-policy.yaml
+isolation: trusted-local
+command:
+  argv:
+    - sh
+    - .heimdall/verify-harness.sh
+  timeout_seconds: 60
+checks:
+  - id: fresh-command-success
+    kind: file_equals
+    path: .heimdall/heimdall-ok
+    expected: "ok\n"

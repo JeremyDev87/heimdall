@@ -4,9 +4,12 @@ Heimdall is an evidence-first, deterministic evaluator for trusted local agent h
 It freezes a target, executes a declared command in a disposable copy, verifies explicit
 artifacts, seals content-light evidence, and reduces hard gates to one of four states.
 
-> **Status:** Go MVP implementation. The `ddalggak` adapter is published and has completed an
-> exact-revision local `trusted-local` pilot. This repository defines a separate pinned Linux
-> real-target gate; a successful hosted receipt is required before claiming Linux real-target evidence.
+> **Status:** Go MVP implementation. The published `ddalggak` adapter has exact-revision local Darwin
+> and hosted Ubuntu receipts. The hosted receipt passed on merge commit
+> `7dd568511b5e37ee60ccbd5f4fe7e2f38a30debb` in
+> [main run 30792274162](https://github.com/JeremyDev87/heimdall/actions/runs/30792274162).
+> This repository does not yet have a license, immutable tag, or binary release; source availability
+> must not be described as permission to reuse or as a stable installation channel.
 
 ## Why Heimdall
 
@@ -35,10 +38,28 @@ Requirements: Go 1.26 or newer. Heimdall itself has no Python or `uv` runtime de
 A target command may independently require the interpreter declared in its manifest.
 
 ```bash
-go build -trimpath -o ./bin/heimdall ./cmd/heimdall
+VERSION=dev
+COMMIT="$(git rev-parse HEAD)"
+git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+go build -trimpath -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" -o ./bin/heimdall ./cmd/heimdall
+./bin/heimdall version
 ./bin/heimdall validate fixtures/pass/eval.yaml
 ./bin/heimdall evaluate fixtures/pass/eval.yaml --out /tmp/heimdall-pass
 ```
+
+For a new owner-controlled command harness, initialize a fail-closed scaffold from the harness root:
+
+```bash
+/path/to/heimdall init --preset command-artifact --target . -- ./scripts/verify-harness.sh
+# Review .heimdall-eval.yaml, .heimdall-policy.yaml, and .heimdall/verify-harness.sh.
+/path/to/heimdall check
+```
+
+`init` never learns expected evidence from a first run and never overwrites a differing scaffold.
+The supplied command must itself verify the harness outcome; a command that merely exits successfully
+is not an artifact oracle. `check` validates and evaluates with the existing four-state reducer, writes
+the three report artifacts outside the target by default, and prints their resolved directory.
 
 A manifest declares a relative target root, a versioned policy, an argv-only command, a
 timeout, and deterministic file checks:
@@ -98,13 +119,13 @@ group timeout cleanup, and source no-write verification. **This is not an OS san
 access and arbitrary host writes are not prevented. Do not evaluate adversarial or third-party
 code with this runner. Such targets require a future container or host-enforced sandbox backend.
 
-The hosted runner is verified on GitHub-hosted macOS and Ubuntu. Merge commit
-`3186dc048332a885d6b887095f958a8d33086dca` completed format, vet, race-enabled process/timeout
-tests, and build on `ubuntu-latest` and `macos-latest` in
-[CI run 30736621364](https://github.com/JeremyDev87/heimdall/actions/runs/30736621364).
-The Linux cross-build jobs are separate artifact evidence; the published `ddalggak` real-target
-pilot below was run on macOS only. `.github/workflows/real-target.yml` is the separate hosted Linux
-gate and does not become Linux evidence until its exact-revision receipt passes.
+The hosted runner is verified on GitHub-hosted macOS and Ubuntu at merge commit
+`7dd568511b5e37ee60ccbd5f4fe7e2f38a30debb`. The regular Ubuntu/macOS CI lanes passed in
+[CI run 30792274120](https://github.com/JeremyDev87/heimdall/actions/runs/30792274120). The separate
+pinned Linux real-target lane passed in
+[run 30792274162](https://github.com/JeremyDev87/heimdall/actions/runs/30792274162); its artifact records
+the exact `ddalggak` revision, two-run semantic digest agreement, `no_write=true`, and
+`outside_workspace_write=false`. Cross-build success remains distinct from hosted runtime evidence.
 Hermes profiles are not used as a sandbox, and the bundled Skill is not installed automatically.
 Human or host control retains final acceptance and every external state transition.
 
@@ -123,7 +144,8 @@ evaluations produced the same evidence digest
 evidence true. A fixture-tamper probe exited `1` and reduced to `FAIL` with `command_failed` and
 `required_evidence_missing`; it could not reuse or emit a stale pass artifact.
 
-This is exact published-revision local evidence, not a Linux real-target result. The evaluated target digest
+This is exact published-revision local evidence; the separate hosted Linux result is documented above.
+The evaluated target digest
 `5a2330e555ad4f42a4eb02cf51c4fe9ad90ab2f4fc90220c753d53a9223d1df2` binds the exact
 Heimdall-evaluated target snapshot: relative paths, file/directory kinds, and regular-file bytes.
 It excludes `.git`, `.venv`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`, and does not seal
@@ -185,12 +207,13 @@ policies/            versioned scoring policy artifacts
 fixtures/            fixed adversarial and benign corpus
 testdata/oracle/     frozen cross-language parity receipts
 skill/heimdall/      distributable Hermes Skill; not profile-installed
+templates/           embedded, reviewable onboarding scaffold templates
 ```
 
 ## Deferred work
 
-Obtaining and independently reviewing a successful hosted receipt from the pinned Linux real-target
-lane is the next evidence gate. An optional evidence-only semantic reviewer may be
-considered only after deterministic gaps are measured against a human-reviewed corpus. Container
-isolation, GitHub integration, publication, deployment, automatic approval, and numeric scoring
-remain outside this MVP.
+Selecting a license and producing an immutable, checksum-verified binary release are the next public
+distribution gates. A reusable GitHub Action remains dependent on that release. An optional
+evidence-only semantic reviewer may be considered only after deterministic gaps are measured against
+a human-reviewed corpus. Container isolation, publication, deployment, automatic approval, and
+numeric scoring remain outside this MVP.
