@@ -21,6 +21,10 @@ func Evaluate(manifest string) (*Artifacts, error) {
 	if err != nil {
 		return nil, err
 	}
+	return EvaluateSpec(spec)
+}
+
+func EvaluateSpec(spec *contract.Spec) (*Artifacts, error) {
 	temporary, err := os.MkdirTemp("", "heimdall-")
 	if err != nil {
 		return nil, err

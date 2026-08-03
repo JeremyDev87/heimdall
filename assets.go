@@ -2,7 +2,7 @@ package heimdallassets
 
 import "embed"
 
-// FS contains the public JSON schemas used by the evaluator.
+// FS contains the public schemas, policy, and onboarding templates used by Heimdall.
 //
-//go:embed schemas/*.json
+//go:embed schemas/*.json policies/*.yaml templates/command-artifact/*
 var FS embed.FS
