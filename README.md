@@ -4,9 +4,9 @@ Heimdall is an evidence-first, deterministic evaluator for trusted local agent h
 It freezes a target, executes a declared command in a disposable copy, verifies explicit
 artifacts, seals content-light evidence, and reduces hard gates to one of four states.
 
-> **Status:** Go MVP implementation. A `ddalggak` repository candidate has completed the first
-> local `trusted-local` pilot; publishing that adapter and running the real target on Linux remain
-> separate follow-up gates.
+> **Status:** Go MVP implementation. The `ddalggak` adapter is published and has completed an
+> exact-revision local `trusted-local` pilot. This repository defines a separate pinned Linux
+> real-target gate; a successful hosted receipt is required before claiming Linux real-target evidence.
 
 ## Why Heimdall
 
@@ -102,16 +102,17 @@ The hosted runner is verified on GitHub-hosted macOS and Ubuntu. Merge commit
 `3186dc048332a885d6b887095f958a8d33086dca` completed format, vet, race-enabled process/timeout
 tests, and build on `ubuntu-latest` and `macos-latest` in
 [CI run 30736621364](https://github.com/JeremyDev87/heimdall/actions/runs/30736621364).
-The Linux cross-build jobs are separate artifact evidence; the `ddalggak` real-target pilot below
-was run on macOS only.
+The Linux cross-build jobs are separate artifact evidence; the published `ddalggak` real-target
+pilot below was run on macOS only. `.github/workflows/real-target.yml` is the separate hosted Linux
+gate and does not become Linux evidence until its exact-revision receipt passes.
 Hermes profiles are not used as a sandbox, and the bundled Skill is not installed automatically.
 Human or host control retains final acceptance and every external state transition.
 
 ## First trusted-local pilot
 
-The first real-target candidate used Heimdall merge commit
-`3186dc048332a885d6b887095f958a8d33086dca` against a local adapter based on `ddalggak` commit
-`62fada25900a598e655e84b6e953453caa086a4a`. The adapter invokes ddalggak's existing deterministic
+The published real-target pilot used Heimdall commit
+`27c0aa105d7216bdc8d67ee3f544e3459422d7d0` against `ddalggak` commit
+`89868c05ca781365701362db08666bca503901b2`. The adapter invokes ddalggak's existing deterministic
 29-scenario readiness evaluator and writes `ok\n` only after that evaluator exits successfully.
 
 The target-local policy is byte-identical to `policies/harness-readiness-v1.yaml`, with SHA-256
@@ -122,14 +123,38 @@ evaluations produced the same evidence digest
 evidence true. A fixture-tamper probe exited `1` and reduced to `FAIL` with `command_failed` and
 `required_evidence_missing`; it could not reuse or emit a stale pass artifact.
 
-This is local candidate evidence, not an upstream ddalggak commit, published package integration,
-or Linux real-target result. The evaluated target digest
+This is exact published-revision local evidence, not a Linux real-target result. The evaluated target digest
 `5a2330e555ad4f42a4eb02cf51c4fe9ad90ab2f4fc90220c753d53a9223d1df2` binds the exact
 Heimdall-evaluated target snapshot: relative paths, file/directory kinds, and regular-file bytes.
 It excludes `.git`, `.venv`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`, and does not seal
 filesystem metadata such as mode or timestamps. It proves one bounded repository can use the
 existing contract; it does not prove universal target coverage or provide an adversarial-code
 sandbox.
+
+## Linux real-target gate
+
+The hosted lane checks out the current exact Heimdall revision and fetches the pinned public
+`ddalggak` revision above into the runner's temporary directory. It validates the manifest, evaluates
+the target twice, and fails unless the state is `PASS`, process/check receipts pass, semantic digests
+repeat, the target remains unchanged, and Heimdall's bounded `outside_workspace_write` receipt is
+false. That receipt covers Heimdall's runner-workspace boundary signals; it does not observe arbitrary
+host writes and does not turn `trusted-local` execution into a security sandbox. The workflow uploads
+both three-artifact runs plus semantic and always-written CI execution receipts.
+
+The same gate can be reproduced from a clean ddalggak checkout without changing either repository:
+
+```bash
+bash scripts/verify-ddalggak-real-target.sh \
+  /path/to/ddalggak /tmp/heimdall-ddalggak-real-target \
+  89868c05ca781365701362db08666bca503901b2 "$(git rev-parse HEAD)"
+```
+
+The verifier builds Heimdall from the checkout containing the script. The hosted workflow additionally
+requires that checkout to be clean, so an arbitrary caller-supplied executable cannot forge a PASS.
+
+The Darwin semantic digests are not hard-coded as Linux expectations. The Linux lane establishes
+repeatability by comparing two evaluations on the same exact hosted runtime and preserves the
+observed digests in `receipt.json`.
 
 ## Regression and migration corpus
 
@@ -164,8 +189,8 @@ skill/heimdall/      distributable Hermes Skill; not profile-installed
 
 ## Deferred work
 
-Promoting the local `ddalggak` adapter through independent review and rerunning its exact published
-revision on Linux are the next evidence gates. An optional evidence-only semantic reviewer may be
+Obtaining and independently reviewing a successful hosted receipt from the pinned Linux real-target
+lane is the next evidence gate. An optional evidence-only semantic reviewer may be
 considered only after deterministic gaps are measured against a human-reviewed corpus. Container
 isolation, GitHub integration, publication, deployment, automatic approval, and numeric scoring
 remain outside this MVP.
