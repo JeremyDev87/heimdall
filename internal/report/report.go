@@ -1,6 +1,8 @@
 package report
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -31,6 +33,20 @@ func WriteArtifacts(out string, evidence, assessment map[string]any, markdown st
 	if err := os.MkdirAll(directory, 0o700); err != nil {
 		return err
 	}
+	root, err := os.OpenRoot(directory)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	return WriteArtifactsRoot(root, evidence, assessment, markdown)
+}
+
+// WriteArtifactsRoot writes only beneath the already-open output directory.
+// The caller owns the root and is responsible for checking its containment.
+func WriteArtifactsRoot(root *os.Root, evidence, assessment map[string]any, markdown string) error {
+	if root == nil {
+		return fmt.Errorf("nil output root")
+	}
 	evidenceJSON, err := canonjson.MarshalIndent(evidence)
 	if err != nil {
 		return err
@@ -39,21 +55,21 @@ func WriteArtifacts(out string, evidence, assessment map[string]any, markdown st
 	if err != nil {
 		return err
 	}
-	if err := atomicWrite(filepath.Join(directory, "evidence.json"), append(evidenceJSON, '\n')); err != nil {
+	if err := atomicWriteRoot(root, "evidence.json", append(evidenceJSON, '\n')); err != nil {
 		return err
 	}
-	if err := atomicWrite(filepath.Join(directory, "report.json"), append(reportJSON, '\n')); err != nil {
+	if err := atomicWriteRoot(root, "report.json", append(reportJSON, '\n')); err != nil {
 		return err
 	}
-	return atomicWrite(filepath.Join(directory, "report.md"), []byte(markdown))
+	return atomicWriteRoot(root, "report.md", []byte(markdown))
 }
-func atomicWrite(path string, content []byte) error {
-	handle, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
+
+func atomicWriteRoot(root *os.Root, name string, content []byte) error {
+	temporary, handle, err := createTempRootFile(root, "."+name+".tmp-")
 	if err != nil {
 		return err
 	}
-	temporary := handle.Name()
-	defer os.Remove(temporary)
+	defer root.Remove(temporary)
 	if _, err := handle.Write(content); err != nil {
 		_ = handle.Close()
 		return err
@@ -61,7 +77,25 @@ func atomicWrite(path string, content []byte) error {
 	if err := handle.Close(); err != nil {
 		return err
 	}
-	return os.Rename(temporary, path)
+	return root.Rename(temporary, name)
+}
+
+func createTempRootFile(root *os.Root, prefix string) (string, *os.File, error) {
+	var random [16]byte
+	for attempt := 0; attempt < 10; attempt++ {
+		if _, err := rand.Read(random[:]); err != nil {
+			return "", nil, err
+		}
+		name := prefix + hex.EncodeToString(random[:])
+		handle, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+		if err == nil {
+			return name, handle, nil
+		}
+		if !os.IsExist(err) {
+			return "", nil, err
+		}
+	}
+	return "", nil, fmt.Errorf("unable to create a unique temporary artifact")
 }
 func expandHome(path string) string {
 	if path == "~" || strings.HasPrefix(path, "~/") {
