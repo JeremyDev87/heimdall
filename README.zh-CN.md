@@ -22,7 +22,9 @@ agent 或 harness 输出 `PASS`、`approved`、`read_only` 并不是独立证据
 - `heimdall_0.1.0_darwin_arm64.tar.gz`
 - `checksums.txt`
 
-每个 archive 只包含 `heimdall`、`LICENSE` 和 `README.md`。解压前先验证 checksum，再检查 runtime provenance：
+每个 archive 只包含 `heimdall`、`LICENSE` 和 `README.md`。由于 `v0.1.0` 是在本次文档更新前打出的不可变版本，archive 内的 `README.md` 是 tag 时的发布前 snapshot，仍写着尚无 binary release。当前的 release 指南以 default branch 上的最新 README 为准。
+
+解压前先验证 checksum，再检查 runtime provenance：
 
 ```bash
 ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
@@ -44,7 +46,9 @@ workflow 证明 hosted release run 中 draft artifact 与远程上传 asset 的 
 ```bash
 VERSION=dev
 COMMIT="$(git rev-parse HEAD)"
-git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+if [ -n "$(git status --porcelain=v1 --untracked-files=normal --ignore-submodules=dirty)" ]; then
+  COMMIT="${COMMIT}-dirty"
+fi
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 go build -trimpath \
   -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" \

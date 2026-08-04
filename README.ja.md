@@ -22,7 +22,9 @@ agent や harness が `PASS`、`approved`、`read_only` と報告しても、そ
 - `heimdall_0.1.0_darwin_arm64.tar.gz`
 - `checksums.txt`
 
-各 archive には `heimdall`、`LICENSE`、`README.md` だけが含まれます。展開前に checksum を検証し、その後 runtime provenance を確認してください。
+各 archive には `heimdall`、`LICENSE`、`README.md` だけが含まれます。`v0.1.0` はこの文書更新前にタグ付けされた immutable release のため、archive 内の `README.md` はタグ時点の公開前 snapshot であり、binary release はまだ存在しないと記載されています。現在の release 案内は default branch の最新 README を正とします。
+
+展開前に checksum を検証し、その後 runtime provenance を確認してください。
 
 ```bash
 ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
@@ -44,7 +46,9 @@ workflow は hosted release run における draft artifact と remote asset の
 ```bash
 VERSION=dev
 COMMIT="$(git rev-parse HEAD)"
-git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+if [ -n "$(git status --porcelain=v1 --untracked-files=normal --ignore-submodules=dirty)" ]; then
+  COMMIT="${COMMIT}-dirty"
+fi
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 go build -trimpath \
   -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" \

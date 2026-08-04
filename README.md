@@ -22,7 +22,9 @@ The stable distribution channel is the immutable [`v0.1.0` release](https://gith
 - `heimdall_0.1.0_darwin_arm64.tar.gz`
 - `checksums.txt`
 
-Each archive contains only `heimdall`, `LICENSE`, and `README.md`. Verify the checksum before extracting, then verify runtime provenance:
+Each archive contains only `heimdall`, `LICENSE`, and `README.md`. Because `v0.1.0` was tagged before this documentation update and is immutable, the archived `README.md` is the tag-time pre-publication snapshot and still says that no binary release exists. Use the latest default-branch README as the current release guide.
+
+Verify the checksum before extracting, then verify runtime provenance:
 
 ```bash
 ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
@@ -44,7 +46,9 @@ Requirements: Go 1.26 or newer. Heimdall itself has no Python or `uv` runtime de
 ```bash
 VERSION=dev
 COMMIT="$(git rev-parse HEAD)"
-git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+if [ -n "$(git status --porcelain=v1 --untracked-files=normal --ignore-submodules=dirty)" ]; then
+  COMMIT="${COMMIT}-dirty"
+fi
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 go build -trimpath \
   -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" \
