@@ -22,7 +22,9 @@ Heimdall은 신뢰된 로컬 에이전트 하네스를 위한 **증거 우선·�
 - `heimdall_0.1.0_darwin_arm64.tar.gz`
 - `checksums.txt`
 
-각 archive에는 `heimdall`, `LICENSE`, `README.md`만 들어 있습니다. 압축을 풀기 전에 checksum을 검증하고 runtime provenance를 확인하십시오.
+각 archive에는 `heimdall`, `LICENSE`, `README.md`만 들어 있습니다. `v0.1.0`은 이 문서 갱신 전에 태그된 immutable release이므로 archive 안의 `README.md`는 태그 시점의 게시 전 snapshot이며 아직 binary release가 없다고 적혀 있습니다. 현재 release 안내의 기준은 default branch의 최신 README입니다.
+
+압축을 풀기 전에 checksum을 검증하고 runtime provenance를 확인하십시오.
 
 ```bash
 ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
@@ -44,7 +46,9 @@ Workflow는 hosted release run에서 draft artifact와 원격 업로드 asset의
 ```bash
 VERSION=dev
 COMMIT="$(git rev-parse HEAD)"
-git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+if [ -n "$(git status --porcelain=v1 --untracked-files=normal --ignore-submodules=dirty)" ]; then
+  COMMIT="${COMMIT}-dirty"
+fi
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 go build -trimpath \
   -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" \

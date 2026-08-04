@@ -22,7 +22,9 @@ El canal estable de distribución es la [`release v0.1.0` inmutable](https://git
 - `heimdall_0.1.0_darwin_arm64.tar.gz`
 - `checksums.txt`
 
-Cada archive contiene únicamente `heimdall`, `LICENSE` y `README.md`. Verifica el checksum antes de extraer y después comprueba la provenance del runtime:
+Cada archive contiene únicamente `heimdall`, `LICENSE` y `README.md`. Como `v0.1.0` es una release inmutable etiquetada antes de esta actualización documental, el `README.md` incluido es la instantánea previa a la publicación del momento del tag y todavía indica que no existe una release binaria. La guía vigente de la release es el README más reciente de la default branch.
+
+Verifica el checksum antes de extraer y después comprueba la provenance del runtime:
 
 ```bash
 ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
@@ -44,7 +46,9 @@ Requisito: Go 1.26 o posterior. Heimdall no tiene una dependencia de runtime de 
 ```bash
 VERSION=dev
 COMMIT="$(git rev-parse HEAD)"
-git diff --quiet --ignore-submodules -- || COMMIT="${COMMIT}-dirty"
+if [ -n "$(git status --porcelain=v1 --untracked-files=normal --ignore-submodules=dirty)" ]; then
+  COMMIT="${COMMIT}-dirty"
+fi
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 go build -trimpath \
   -ldflags="-X github.com/JeremyDev87/heimdall/internal/cli.Version=${VERSION} -X github.com/JeremyDev87/heimdall/internal/cli.Commit=${COMMIT} -X github.com/JeremyDev87/heimdall/internal/cli.BuildDate=${BUILD_DATE}" \
@@ -118,7 +122,7 @@ Una evaluación escribe exactamente tres artefactos:
 - `report.json`: estado canónico, reason codes, criterios y semantic digest;
 - `report.md`: proyección determinista de `report.json`.
 
-No se copian en estos reports raw stdout, stderr, valores de entorno, contenido del target, credenciales ni rutas absolutas. Se representan únicamente mediante content digests y tamaños en bytes. Los documentos semánticos omiten timestamps y rutas temporales para que las ejecuciones repetidas sean comparables.
+No se copian en estos reports raw stdout, stderr, valores de entorno, contenido del target, credenciales ni rutas absolutas del target. Se representan únicamente mediante content digests y tamaños en bytes. Los documentos semánticos omiten timestamps y rutas temporales para que las ejecuciones repetidas sean comparables.
 
 ## Seguridad y límite de plataforma
 
