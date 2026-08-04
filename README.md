@@ -8,8 +8,8 @@ artifacts, seals content-light evidence, and reduces hard gates to one of four s
 > and hosted Ubuntu receipts. The hosted receipt passed on merge commit
 > `7dd568511b5e37ee60ccbd5f4fe7e2f38a30debb` in
 > [main run 30792274162](https://github.com/JeremyDev87/heimdall/actions/runs/30792274162).
-> This repository does not yet have a license, immutable tag, or binary release; source availability
-> must not be described as permission to reuse or as a stable installation channel.
+> The source is licensed under MIT. There is no immutable tag or binary release yet, so a source
+> checkout must not be presented as a stable installation channel.
 
 ## Why Heimdall
 
@@ -210,10 +210,17 @@ skill/heimdall/      distributable Hermes Skill; not profile-installed
 templates/           embedded, reviewable onboarding scaffold templates
 ```
 
+## License
+
+Heimdall source code is licensed under the [MIT License](LICENSE). This license governs source reuse;
+it does not mean that a versioned binary, checksum, package, or stable installation channel has been
+published. Until an immutable release exists, build from an exact source revision and preserve the
+runtime provenance reported by `heimdall version`.
+
 ## Deferred work
 
-Selecting a license and producing an immutable, checksum-verified binary release are the next public
-distribution gates. A reusable GitHub Action remains dependent on that release. An optional
+Producing an immutable, checksum-verified binary release is the next public distribution gate. A
+reusable GitHub Action remains dependent on that release. An optional
 evidence-only semantic reviewer may be considered only after deterministic gaps are measured against
 a human-reviewed corpus. Container isolation, publication, deployment, automatic approval, and
 numeric scoring remain outside this MVP.
