@@ -25,15 +25,15 @@ The stable distribution channel is the immutable [`v0.1.0` release](https://gith
 Each archive contains only `heimdall`, `LICENSE`, and `README.md`. Verify the checksum before extracting, then verify runtime provenance:
 
 ```bash
-# Darwin arm64
-curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/heimdall_0.1.0_darwin_arm64.tar.gz
+ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
+curl -fLO "https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/${ARCHIVE}"
 curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/checksums.txt
-shasum -a 256 --check checksums.txt
-tar -xzf heimdall_0.1.0_darwin_arm64.tar.gz
+grep "  ${ARCHIVE}\$" checksums.txt | shasum -a 256 --check
+tar -xzf "${ARCHIVE}"
 ./heimdall version
 ```
 
-For Linux amd64, download `heimdall_0.1.0_linux_amd64.tar.gz` instead. The reported version must be `0.1.0`, the commit must be `1cc04368aebe25d459cc65796855a9f3e9ce3338`, and `build_date` must be present.
+For Linux amd64, set `ARCHIVE=heimdall_0.1.0_linux_amd64.tar.gz` instead. The reported version must be `0.1.0`, the commit must be `1cc04368aebe25d459cc65796855a9f3e9ce3338`, and `build_date` must be present.
 
 The workflow proves byte equality between the draft artifacts and the assets uploaded by that hosted release run. A local rebuild made with a different Go toolchain is not promised to be byte-identical; use the published checksums as the release authority.
 

@@ -4,7 +4,7 @@
 
 Heimdall 是面向可信本地 agent harness 的**证据优先、确定性评估器**。它会冻结目标，在一次性副本中执行声明的命令，验证明确的产物，封存内容受限的证据，并将硬门槛归约为四种状态之一。
 
-> **默认文档语言：** 英语。其他文件是本文件的翻译。
+> **默认文档语言：** 英语。本文件是英文默认 README 的翻译。
 >
 > **当前状态：** Go MVP，已经提供不可变且经过 checksum 验证的二进制 release。`v0.1.0` 精确对应 `main` commit [`1cc04368`](https://github.com/JeremyDev87/heimdall/commit/1cc04368aebe25d459cc65796855a9f3e9ce3338)。draft build、远程 byte 比较、无 token runtime、不可变发布门槛均在 [workflow run 30908286471](https://github.com/JeremyDev87/heimdall/actions/runs/30908286471) 中通过。
 
@@ -25,15 +25,15 @@ agent 或 harness 输出 `PASS`、`approved`、`read_only` 并不是独立证据
 每个 archive 只包含 `heimdall`、`LICENSE` 和 `README.md`。解压前先验证 checksum，再检查 runtime provenance：
 
 ```bash
-# Darwin arm64
-curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/heimdall_0.1.0_darwin_arm64.tar.gz
+ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
+curl -fLO "https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/${ARCHIVE}"
 curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/checksums.txt
-shasum -a 256 --check checksums.txt
-tar -xzf heimdall_0.1.0_darwin_arm64.tar.gz
+grep "  ${ARCHIVE}\$" checksums.txt | shasum -a 256 --check
+tar -xzf "${ARCHIVE}"
 ./heimdall version
 ```
 
-Linux amd64 请改为下载 `heimdall_0.1.0_linux_amd64.tar.gz`。输出的 version 必须是 `0.1.0`，commit 必须是 `1cc04368aebe25d459cc65796855a9f3e9ce3338`，并且必须存在 `build_date`。
+Linux amd64 请改为设置 `ARCHIVE=heimdall_0.1.0_linux_amd64.tar.gz`。输出的 version 必须是 `0.1.0`，commit 必须是 `1cc04368aebe25d459cc65796855a9f3e9ce3338`，并且必须存在 `build_date`。
 
 workflow 证明 hosted release run 中 draft artifact 与远程上传 asset 的 byte equality。使用不同 Go toolchain 的本地重建不保证 byte-identical；release 的权威是已发布的 checksum。
 

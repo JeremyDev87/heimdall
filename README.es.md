@@ -4,7 +4,7 @@
 
 Heimdall es un evaluador **determinista y basado primero en evidencia** para harnesses de agentes locales de confianza. Congela un objetivo, ejecuta un comando declarado en una copia desechable, verifica artefactos explícitos, sella evidencia con contenido limitado y reduce los hard gates a uno de cuatro estados.
 
-> **Idioma predeterminado de la documentación:** inglés. Los demás archivos son traducciones de este documento.
+> **Idioma predeterminado de la documentación:** inglés. Este archivo es una traducción del README predeterminado en inglés.
 >
 > **Estado actual:** Go MVP con una release binaria inmutable y verificada mediante checksum. `v0.1.0` apunta exactamente al commit [`1cc04368`](https://github.com/JeremyDev87/heimdall/commit/1cc04368aebe25d459cc65796855a9f3e9ce3338) de `main`. Los gates de draft build, comparación de bytes remotos, runtime sin token y publicación inmutable pasaron en [workflow run 30908286471](https://github.com/JeremyDev87/heimdall/actions/runs/30908286471).
 
@@ -25,15 +25,15 @@ El canal estable de distribución es la [`release v0.1.0` inmutable](https://git
 Cada archive contiene únicamente `heimdall`, `LICENSE` y `README.md`. Verifica el checksum antes de extraer y después comprueba la provenance del runtime:
 
 ```bash
-# Darwin arm64
-curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/heimdall_0.1.0_darwin_arm64.tar.gz
+ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
+curl -fLO "https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/${ARCHIVE}"
 curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/checksums.txt
-shasum -a 256 --check checksums.txt
-tar -xzf heimdall_0.1.0_darwin_arm64.tar.gz
+grep "  ${ARCHIVE}\$" checksums.txt | shasum -a 256 --check
+tar -xzf "${ARCHIVE}"
 ./heimdall version
 ```
 
-En Linux amd64 descarga `heimdall_0.1.0_linux_amd64.tar.gz` en su lugar. La versión debe ser `0.1.0`, el commit debe ser `1cc04368aebe25d459cc65796855a9f3e9ce3338` y `build_date` debe estar presente.
+En Linux amd64 usa `ARCHIVE=heimdall_0.1.0_linux_amd64.tar.gz` en su lugar. La versión debe ser `0.1.0`, el commit debe ser `1cc04368aebe25d459cc65796855a9f3e9ce3338` y `build_date` debe estar presente.
 
 El workflow demuestra la igualdad de bytes entre los artefactos del draft y los assets subidos por ese release run hosted. No se promete que una reconstrucción local con otro Go toolchain sea byte-identical; la autoridad de la release es el checksum publicado.
 

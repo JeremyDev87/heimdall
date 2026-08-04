@@ -4,7 +4,7 @@
 
 Heimdall은 신뢰된 로컬 에이전트 하네스를 위한 **증거 우선·결정론적 평가기**입니다. 대상을 고정하고, 선언된 명령을 임시 복사본에서 실행하며, 명시된 산출물을 검증하고, 내용이 제한된 증거를 봉인한 뒤, hard gate를 네 가지 상태 중 하나로 축약합니다.
 
-> **기본 문서 언어:** 영어입니다. 이 파일들은 영어 기본 README의 번역본입니다.
+> **기본 문서 언어:** 영어입니다. 이 파일은 영어 기본 README의 번역본입니다.
 >
 > **현재 상태:** Go MVP이며 immutable·checksum 검증 바이너리 release를 제공합니다. `v0.1.0`은 정확한 `main` commit [`1cc04368`](https://github.com/JeremyDev87/heimdall/commit/1cc04368aebe25d459cc65796855a9f3e9ce3338)을 대상으로 합니다. draft build, 원격 byte 비교, tokenless runtime, immutable publication gate는 [workflow run 30908286471](https://github.com/JeremyDev87/heimdall/actions/runs/30908286471)에서 통과했습니다.
 
@@ -25,15 +25,15 @@ Heimdall은 신뢰된 로컬 에이전트 하네스를 위한 **증거 우선·�
 각 archive에는 `heimdall`, `LICENSE`, `README.md`만 들어 있습니다. 압축을 풀기 전에 checksum을 검증하고 runtime provenance를 확인하십시오.
 
 ```bash
-# Darwin arm64
-curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/heimdall_0.1.0_darwin_arm64.tar.gz
+ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
+curl -fLO "https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/${ARCHIVE}"
 curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/checksums.txt
-shasum -a 256 --check checksums.txt
-tar -xzf heimdall_0.1.0_darwin_arm64.tar.gz
+grep "  ${ARCHIVE}\$" checksums.txt | shasum -a 256 --check
+tar -xzf "${ARCHIVE}"
 ./heimdall version
 ```
 
-Linux amd64에서는 `heimdall_0.1.0_linux_amd64.tar.gz`를 대신 받으십시오. 출력된 version은 `0.1.0`, commit은 `1cc04368aebe25d459cc65796855a9f3e9ce3338`, `build_date`는 비어 있지 않아야 합니다.
+Linux amd64에서는 `ARCHIVE=heimdall_0.1.0_linux_amd64.tar.gz`로 설정하십시오. 출력된 version은 `0.1.0`, commit은 `1cc04368aebe25d459cc65796855a9f3e9ce3338`, `build_date`는 비어 있지 않아야 합니다.
 
 Workflow는 hosted release run에서 draft artifact와 원격 업로드 asset의 byte equality를 증명합니다. 다른 Go toolchain으로 만든 로컬 재빌드가 byte-identical하다는 보장은 없습니다. release의 권위는 published checksum입니다.
 

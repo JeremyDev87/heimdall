@@ -4,7 +4,7 @@
 
 Heimdall は、信頼されたローカル agent harness のための**証拠優先・決定論的評価器**です。対象を固定し、宣言されたコマンドを使い捨てコピー上で実行し、明示された成果物を検証し、内容を限定した証拠を封印したうえで、hard gate を4つの状態のいずれかに縮約します。
 
-> **既定の文書言語:** 英語です。その他のファイルはこの文書の翻訳です。
+> **既定の文書言語:** 英語です。このファイルは英語版の既定 README の翻訳です。
 >
 > **現在の状態:** Go MVP で、immutable かつ checksum 検証済みの binary release を提供しています。`v0.1.0` は `main` の正確な commit [`1cc04368`](https://github.com/JeremyDev87/heimdall/commit/1cc04368aebe25d459cc65796855a9f3e9ce3338) を対象にします。draft build、remote byte 比較、tokenless runtime、immutable publication gate は [workflow run 30908286471](https://github.com/JeremyDev87/heimdall/actions/runs/30908286471) で成功しました。
 
@@ -25,15 +25,15 @@ agent や harness が `PASS`、`approved`、`read_only` と報告しても、そ
 各 archive には `heimdall`、`LICENSE`、`README.md` だけが含まれます。展開前に checksum を検証し、その後 runtime provenance を確認してください。
 
 ```bash
-# Darwin arm64
-curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/heimdall_0.1.0_darwin_arm64.tar.gz
+ARCHIVE=heimdall_0.1.0_darwin_arm64.tar.gz
+curl -fLO "https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/${ARCHIVE}"
 curl -fLO https://github.com/JeremyDev87/heimdall/releases/download/v0.1.0/checksums.txt
-shasum -a 256 --check checksums.txt
-tar -xzf heimdall_0.1.0_darwin_arm64.tar.gz
+grep "  ${ARCHIVE}\$" checksums.txt | shasum -a 256 --check
+tar -xzf "${ARCHIVE}"
 ./heimdall version
 ```
 
-Linux amd64 では `heimdall_0.1.0_linux_amd64.tar.gz` をダウンロードしてください。表示される version は `0.1.0`、commit は `1cc04368aebe25d459cc65796855a9f3e9ce3338`、`build_date` は存在していなければなりません。
+Linux amd64 では `ARCHIVE=heimdall_0.1.0_linux_amd64.tar.gz` に設定してください。表示される version は `0.1.0`、commit は `1cc04368aebe25d459cc65796855a9f3e9ce3338`、`build_date` は存在していなければなりません。
 
 workflow は hosted release run における draft artifact と remote asset の byte equality を証明します。異なる Go toolchain で作ったローカル再ビルドが byte-identical になる保証はありません。release の権威は公開 checksum です。
 
