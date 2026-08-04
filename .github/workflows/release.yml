@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require immutable releases before mutation
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            printf 'RELEASE_ADMIN_TOKEN with repository Administration:read is required\n' >&2
+            exit 1
+          fi
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$(gh api "repos/$GITHUB_REPOSITORY/immutable-releases" --jq .enabled)" = true
+          default_branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          default_head=$(gh api "repos/$GITHUB_REPOSITORY/commits/$default_branch" --jq .sha)
+          test "$GITHUB_SHA" = "$default_head"
+
+      - name: Check out tagged source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build draft release
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a
+        with:
+          distribution: goreleaser
+          version: v2.17.1
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Verify locally built assets
+        run: bash scripts/verify-release.sh dist "$GITHUB_REF_NAME" "$GITHUB_SHA" full
+
+      - name: Download and byte-compare draft assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          draft_dir="$RUNNER_TEMP/heimdall-draft-assets"
+          mkdir -p "$draft_dir"
+          expected_assets=$(
+            {
+              printf 'checksums.txt\n'
+              for archive in dist/*.tar.gz; do basename "$archive"; done
+            } | LC_ALL=C sort
+          )
+          actual_assets=$(gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | LC_ALL=C sort)
+          test "$actual_assets" = "$expected_assets"
+          gh release download "$GITHUB_REF_NAME" \
+            --dir "$draft_dir" \
+            --pattern '*.tar.gz' \
+            --pattern checksums.txt
+          cmp dist/checksums.txt "$draft_dir/checksums.txt"
+          for archive in dist/*.tar.gz; do
+            cmp "$archive" "$draft_dir/$(basename "$archive")"
+          done
+
+      - name: Verify byte-matched downloaded runtime
+        run: |
+          bash scripts/verify-release.sh \
+            "$RUNNER_TEMP/heimdall-draft-assets" \
+            "$GITHUB_REF_NAME" \
+            "$GITHUB_SHA" \
+            full
+
+      - name: Publish verified immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest
+          test "$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft)" = false
+          test "$(gh release view "$GITHUB_REF_NAME" --json isImmutable --jq .isImmutable)" = true
