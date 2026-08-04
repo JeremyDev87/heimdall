@@ -1,9 +1,9 @@
 ---
 name: heimdall
 description: Use when evaluating a trusted local agent harness with Heimdall.
-version: 0.3.0
+version: 0.3.1
 author: Heimdall contributors
-license: UNLICENSED
+license: MIT
 metadata:
   hermes:
     tags: [agent-harness, evaluation, evidence, deterministic]
@@ -66,8 +66,8 @@ verdict.
 - The hosted runner and pinned `ddalggak` real-target lane passed on GitHub-hosted Ubuntu at Heimdall
   merge commit `7dd568511b5e37ee60ccbd5f4fe7e2f38a30debb` in main run `30792274162`.
   Cross-build results and the earlier local Darwin pilot remain distinct evidence classes.
-- The repository is still `UNLICENSED` and has no immutable public binary release. Do not present
-  source availability as reuse permission or an installation guarantee.
+- The repository source is MIT-licensed, but there is no immutable public binary release. Follow
+  `LICENSE` for source reuse and do not present a source checkout as an installation guarantee.
 - A target command may require Python or another interpreter; the Heimdall binary itself does not.
 - Do not let an LLM finding override deterministic hard gates.
 - Do not install this Skill into a Hermes profile, write GitHub/Wiki, deploy, approve, merge, or
