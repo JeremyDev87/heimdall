@@ -3,6 +3,7 @@ package report
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -55,29 +56,144 @@ func WriteArtifactsRoot(root *os.Root, evidence, assessment map[string]any, mark
 	if err != nil {
 		return err
 	}
-	if err := atomicWriteRoot(root, "evidence.json", append(evidenceJSON, '\n')); err != nil {
-		return err
-	}
-	if err := atomicWriteRoot(root, "report.json", append(reportJSON, '\n')); err != nil {
-		return err
-	}
-	return atomicWriteRoot(root, "report.md", []byte(markdown))
+	return publishArtifactsRoot(root, []artifactSpec{
+		{name: "evidence.json", content: append(evidenceJSON, '\n')},
+		{name: "report.json", content: append(reportJSON, '\n')},
+		{name: "report.md", content: []byte(markdown)},
+	})
 }
 
-func atomicWriteRoot(root *os.Root, name string, content []byte) error {
-	temporary, handle, err := createTempRootFile(root, "."+name+".tmp-")
-	if err != nil {
-		return err
+type artifactSpec struct {
+	name    string
+	content []byte
+}
+
+type artifactBackup struct {
+	name        string
+	backup      string
+	hadOriginal bool
+}
+
+func publishArtifactsRoot(root *os.Root, artifacts []artifactSpec) error {
+	temporaryNames := make([]string, 0, len(artifacts))
+	cleanupTemporary := func() {
+		for _, name := range temporaryNames {
+			_ = root.Remove(name)
+		}
 	}
-	defer root.Remove(temporary)
-	if _, err := handle.Write(content); err != nil {
-		_ = handle.Close()
-		return err
+	defer cleanupTemporary()
+
+	for _, artifact := range artifacts {
+		temporary, handle, err := createTempRootFile(root, "."+artifact.name+".tmp-")
+		if err != nil {
+			return err
+		}
+		temporaryNames = append(temporaryNames, temporary)
+		if _, err := handle.Write(artifact.content); err != nil {
+			_ = handle.Close()
+			return err
+		}
+		if err := handle.Close(); err != nil {
+			return err
+		}
 	}
-	if err := handle.Close(); err != nil {
-		return err
+
+	// Validate every destination before moving any existing generation. A
+	// directory, symlink, or other non-regular destination must fail closed.
+	exists := make([]bool, len(artifacts))
+	for i, artifact := range artifacts {
+		info, err := root.Lstat(artifact.name)
+		switch {
+		case err == nil:
+			if !info.Mode().IsRegular() {
+				return fmt.Errorf("artifact destination %q is not a regular file", artifact.name)
+			}
+			exists[i] = true
+		case os.IsNotExist(err):
+		default:
+			return err
+		}
 	}
-	return root.Rename(temporary, name)
+
+	backups := make([]artifactBackup, 0, len(artifacts))
+	reservedBackups := make([]string, 0, len(artifacts))
+	cleanupReserved := func() {
+		for _, name := range reservedBackups {
+			if name != "" {
+				_ = root.Remove(name)
+			}
+		}
+	}
+	defer cleanupReserved()
+
+	for i, artifact := range artifacts {
+		backupName, handle, err := createTempRootFile(root, "."+artifact.name+".bak-")
+		if err != nil {
+			return errors.Join(err, restoreArtifactBackups(root, backups))
+		}
+		reservedBackups = append(reservedBackups, backupName)
+		if err := handle.Close(); err != nil {
+			return errors.Join(err, restoreArtifactBackups(root, backups))
+		}
+		if !exists[i] {
+			if err := root.Remove(backupName); err != nil {
+				return errors.Join(err, restoreArtifactBackups(root, backups))
+			}
+			reservedBackups[len(reservedBackups)-1] = ""
+			backups = append(backups, artifactBackup{name: artifact.name})
+			continue
+		}
+		if err := root.Rename(artifact.name, backupName); err != nil {
+			return errors.Join(err, restoreArtifactBackups(root, backups))
+		}
+		backups = append(backups, artifactBackup{name: artifact.name, backup: backupName, hadOriginal: true})
+	}
+
+	for i, artifact := range artifacts {
+		if err := root.Rename(temporaryNames[i], artifact.name); err != nil {
+			rollbackErr := rollbackPublishedArtifacts(root, artifacts, backups)
+			return errors.Join(fmt.Errorf("publish artifact %q: %w", artifact.name, err), rollbackErr)
+		}
+	}
+
+	for _, backup := range backups {
+		if backup.backup == "" {
+			continue
+		}
+		if err := root.Remove(backup.backup); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+	return nil
+}
+
+func restoreArtifactBackups(root *os.Root, backups []artifactBackup) error {
+	var restoreErr error
+	for i := len(backups) - 1; i >= 0; i-- {
+		backup := backups[i]
+		if !backup.hadOriginal {
+			continue
+		}
+		if err := root.Rename(backup.backup, backup.name); err != nil {
+			restoreErr = errors.Join(restoreErr, err)
+		}
+	}
+	return restoreErr
+}
+
+func rollbackPublishedArtifacts(root *os.Root, artifacts []artifactSpec, backups []artifactBackup) error {
+	var rollbackErr error
+	for i := len(artifacts) - 1; i >= 0; i-- {
+		if err := root.Remove(artifacts[i].name); err != nil && !os.IsNotExist(err) {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+		if backups[i].hadOriginal {
+			if err := root.Rename(backups[i].backup, backups[i].name); err != nil {
+				rollbackErr = errors.Join(rollbackErr, err)
+			}
+		}
+	}
+	return rollbackErr
 }
 
 func createTempRootFile(root *os.Root, prefix string) (string, *os.File, error) {
