@@ -1,7 +1,7 @@
 ---
 name: heimdall
 description: Use when evaluating a trusted local agent harness with Heimdall.
-version: 0.3.1
+version: 0.3.2
 author: Heimdall contributors
 license: MIT
 metadata:
@@ -66,8 +66,10 @@ verdict.
 - The hosted runner and pinned `ddalggak` real-target lane passed on GitHub-hosted Ubuntu at Heimdall
   merge commit `7dd568511b5e37ee60ccbd5f4fe7e2f38a30debb` in main run `30792274162`.
   Cross-build results and the earlier local Darwin pilot remain distinct evidence classes.
-- The repository source is MIT-licensed, but there is no immutable public binary release. Follow
-  `LICENSE` for source reuse and do not present a source checkout as an installation guarantee.
+- The repository source is MIT-licensed, and immutable public binary release `v0.1.0` is published at
+  `https://github.com/JeremyDev87/heimdall/releases/tag/v0.1.0` for Linux/AMD64 and Darwin/ARM64.
+  Verify `checksums.txt`, archive members, and `heimdall version` provenance before use; release
+  availability does not imply profile installation or support for other platforms.
 - A target command may require Python or another interpreter; the Heimdall binary itself does not.
 - Do not let an LLM finding override deterministic hard gates.
 - Do not install this Skill into a Hermes profile, write GitHub/Wiki, deploy, approve, merge, or
