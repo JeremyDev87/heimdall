@@ -1,0 +1,47 @@
+name: Heimdall trusted-local evaluation
+description: Run the pinned immutable Heimdall release against a workspace-relative manifest.
+author: Heimdall contributors
+inputs:
+  manifest:
+    description: Workspace-relative evaluation manifest path.
+    required: false
+    default: .heimdall-eval.yaml
+outputs:
+  state:
+    description: Heimdall state or ACTION_ERROR when the action itself could not execute.
+    value: ${{ steps.evaluate.outputs.state }}
+  exit-code:
+    description: Original Heimdall verdict exit code, or the action setup error code.
+    value: ${{ steps.evaluate.outputs['exit-code'] }}
+  artifacts-dir:
+    description: RUNNER_TEMP directory containing evidence.json, report.json, and report.md.
+    value: ${{ steps.evaluate.outputs['artifacts-dir'] }}
+  evidence-digest:
+    description: Evidence semantic digest from report output.
+    value: ${{ steps.evaluate.outputs['evidence-digest'] }}
+  report-digest:
+    description: Report semantic digest from report output.
+    value: ${{ steps.evaluate.outputs['report-digest'] }}
+  binary-path:
+    description: Path to the verified downloaded Heimdall binary.
+    value: ${{ steps.evaluate.outputs['binary-path'] }}
+  binary-version:
+    description: Verified Heimdall binary version.
+    value: ${{ steps.evaluate.outputs['binary-version'] }}
+  binary-commit:
+    description: Verified Heimdall binary commit.
+    value: ${{ steps.evaluate.outputs['binary-commit'] }}
+runs:
+  using: composite
+  steps:
+    - id: evaluate
+      name: Run verified Heimdall release
+      shell: bash
+      env:
+        INPUT_MANIFEST: ${{ inputs.manifest }}
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+        RUNNER_TEMP: ${{ runner.temp }}
+        RUNNER_OS: ${{ runner.os }}
+        RUNNER_ARCH: ${{ runner.arch }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/run-action.sh"
